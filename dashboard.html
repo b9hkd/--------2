@@ -1,0 +1,1148 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>СолнцеCRM — Дашборд</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --card: #ffffff;
+      --text: #1f2933;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --radius-lg: 18px;
+      --shadow: 0 12px 30px rgba(17, 24, 39, 0.08);
+      --orange-grad: linear-gradient(135deg, #f59e0b, #f97316);
+      --green-grad: linear-gradient(135deg, #22c55e, #14b8a6);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Manrope', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    #root { min-height: 100vh; }
+
+    .page {
+      max-width: 1260px;
+      margin: 0 auto;
+      padding: 18px 18px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      min-height: 100vh;
+    }
+
+    .panel {
+      background: var(--card);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      gap: 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: var(--orange-grad);
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-weight: 700;
+      font-size: 18px;
+      box-shadow: 0 10px 25px rgba(249, 115, 22, 0.35);
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .brand-title {
+      font-weight: 700;
+      font-size: 19px;
+    }
+
+    .brand-sub {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .date-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 13px;
+      padding: 10px 12px;
+      background: #f9fafb;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .btn {
+      border: none;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 120ms ease, box-shadow 120ms ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn:active { transform: translateY(1px); }
+
+    .btn-primary {
+      padding: 12px 16px;
+      background: linear-gradient(135deg, #f5b54c, #f38b1a);
+      color: #fff;
+      box-shadow: 0 12px 24px rgba(243, 139, 26, 0.32);
+    }
+
+    .icon-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--muted);
+      display: grid;
+      place-items: center;
+    }
+
+    .badge {
+      position: relative;
+    }
+
+    .badge::after {
+      content: attr(data-count);
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      min-width: 16px;
+      padding: 2px 5px;
+      font-size: 11px;
+      line-height: 1;
+      border-radius: 999px;
+      background: #f97316;
+      color: #fff;
+      box-shadow: 0 6px 15px rgba(249, 115, 22, 0.35);
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      padding: 16px 18px;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      color: #fff;
+      background: var(--orange-grad);
+      position: relative;
+      overflow: hidden;
+      min-height: 130px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .card.orange { background: var(--orange-grad); }
+    .card.green { background: var(--green-grad); }
+    .card.white {
+      color: var(--text);
+      background: #fff;
+      border: 1px solid #f3f4f6;
+    }
+
+    .card.beige {
+      background: #fdf3d7;
+      color: #8b6c2b;
+      box-shadow: 0 12px 25px rgba(203, 170, 84, 0.15);
+    }
+
+    .card h3 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+    }
+
+    .kpi-value {
+      font-size: 32px;
+      font-weight: 700;
+      margin: 0;
+      line-height: 1.2;
+    }
+
+    .kpi-sub {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .card.white .kpi-sub { color: var(--muted); }
+    .card.beige .kpi-sub { color: #8b6c2b; }
+
+    .table-card {
+      padding: 14px 0 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 0;
+    }
+
+    .table-header {
+      padding: 0 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .table-title {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .table-sub {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .table-head {
+      display: grid;
+      grid-template-columns: 1.6fr 1.6fr 1fr 1fr 1fr;
+      padding: 10px 18px;
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: #fff;
+      z-index: 2;
+    }
+
+    .table-scroll {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding-bottom: 12px;
+      max-height: calc(100vh - 330px);
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1.6fr 1.6fr 1fr 1fr 1fr;
+      gap: 10px;
+      padding: 14px 18px;
+      align-items: center;
+      border-bottom: 1px solid #f1f2f6;
+      background: #fff;
+    }
+
+    .row:hover { background: #f9fafb; }
+
+    .client {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .client-name {
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .client-city {
+      color: var(--muted);
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .order-items, .order-meta {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.3;
+    }
+
+    .amount {
+      font-weight: 800;
+      font-size: 15px;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 12px;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-new { background: #e8f1ff; color: #3976ff; }
+    .status-contact { background: #fff4da; color: #c27714; }
+    .status-done { background: #eaf7f0; color: #1b9d5b; }
+
+    .source {
+      font-weight: 600;
+      font-size: 13px;
+      color: #2b3340;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 10px;
+      background: #f3f4f6;
+      border-radius: 12px;
+      font-size: 13px;
+      color: #4b5563;
+    }
+
+    .muted { color: var(--muted); }
+    .skeleton { background: #e5e7eb; border-radius: 10px; animation: pulse 1.4s ease infinite; }
+    @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+
+    .btn[disabled] { opacity: 0.6; cursor: not-allowed; box-shadow: none; }
+
+    .top-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .user-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      background: #eef2ff;
+      color: #4338ca;
+      border-radius: 14px;
+      font-weight: 600;
+      border: 1px solid #e0e7ff;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.36);
+      backdrop-filter: blur(2px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      padding: 12px;
+    }
+
+    .modal {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      width: min(520px, 94vw);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .modal h3 { margin: 0; }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 12px;
+    }
+    .form-grid .full { grid-column: span 2; }
+
+    .input, select, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #f9fafb;
+      font-size: 14px;
+      font-family: inherit;
+      transition: border-color 120ms ease, box-shadow 120ms ease;
+    }
+    .input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #60a5fa;
+      box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.25);
+      background: #fff;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .btn-ghost {
+      background: #f3f4f6;
+      color: #374151;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      font-weight: 600;
+    }
+
+    .overlay-locked {
+      position: fixed;
+      inset: 0;
+      background: rgba(255, 255, 255, 0.95);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 40;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .menu {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .menu .btn {
+      padding: 10px 14px;
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+      color: #374151;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #eef2ff;
+      color: #4338ca;
+      font-weight: 600;
+      font-size: 12px;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 14px;
+      right: 14px;
+      background: #111827;
+      color: #fff;
+      padding: 12px 14px;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      z-index: 60;
+      min-width: 220px;
+      font-size: 14px;
+    }
+
+    @media (max-width: 980px) {
+      .table-head, .row {
+        grid-template-columns: 1.4fr 1.4fr 1fr 0.8fr 1fr;
+      }
+    }
+
+    .table-head.meta, .row.meta {
+      grid-template-columns: 1.3fr 1.4fr 1fr 0.8fr 1fr 1fr 1fr 0.7fr;
+    }
+
+    @media (max-width: 820px) {
+      .header { flex-direction: column; align-items: flex-start; }
+      .header-right { width: 100%; justify-content: space-between; }
+      .table-head, .row {
+        grid-template-columns: 1.6fr 1fr 1fr 1fr;
+      }
+      .row .order-items { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script>
+    // покажем ошибку на странице, если что-то упадет до React-рендера
+    (function () {
+      const show = (msg) => {
+        const el = document.getElementById('root');
+        if (el) el.innerHTML = '<pre style="white-space:pre-wrap;color:#b91c1c;background:#fef2f2;padding:12px;border-radius:12px;">' + msg + '</pre>';
+      };
+      window.addEventListener('error', (e) => show('Ошибка: ' + e.message));
+      window.addEventListener('unhandledrejection', (e) => show('Ошибка: ' + e.reason));
+    })();
+  </script>
+
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script type="text/babel" data-presets="env,react">
+    const { useEffect, useMemo, useState, useRef } = React;
+
+    const API = window.location.origin.includes('8001')
+      ? 'http://localhost:8002'
+      : '';
+    const sanitize = (v) => String(v ?? '').replace(/[<>]/g, '').trim();
+    const validLogin = (v) => /^[a-zA-Z0-9_.-]{3,32}$/.test(v);
+    const validPassword = (v) => /^.{6,64}$/.test(v) && !(/[\"'`;]/.test(v));
+    const nowISO = () => new Date().toISOString();
+
+    const formatMoney = (value) =>
+      Intl.NumberFormat('ru-RU').format(Math.round(Number(value))) + ' ₽';
+
+    const formatDate = (value) =>
+      new Date(value).toLocaleDateString('ru-RU', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      });
+
+    const deriveStatus = (orderType) => {
+      const clean = String(orderType || '').toLowerCase();
+      if (clean.includes('под заказ')) return { label: 'Новая', cls: 'status-new' };
+      if (clean.includes('индивидуальное')) return { label: 'Связались', cls: 'status-contact' };
+      return { label: 'Закрыта', cls: 'status-done' };
+    };
+
+    const deriveKPIs = (rows) => {
+      if (!rows.length) {
+        return {
+          total: 0,
+          revenue: 0,
+          conversion: 0,
+          newCount: 0,
+          lastDate: null,
+        };
+      }
+      const total = rows.length;
+      const revenue = rows.reduce((sum, r) => sum + Number(r.order_amount || 0), 0);
+      const closed = rows.filter((r) => String(r.order_type || '').toLowerCase().includes('из наличия')).length;
+      const conversion = total ? Math.round((closed / total) * 1000) / 10 : 0;
+      const lastDate = rows.reduce((latest, r) => {
+        const d = new Date(r.order_date);
+        return d > latest ? d : latest;
+      }, new Date(rows[0].order_date));
+      const cutoff = new Date(lastDate);
+      cutoff.setDate(cutoff.getDate() - 7);
+      const newCount = rows.filter((r) => new Date(r.order_date) >= cutoff).length;
+      return { total, revenue, conversion, newCount, lastDate };
+    };
+
+    const StatCard = ({ title, value, subtitle, tone = 'orange' }) => (
+      <div className={['card', tone].filter(Boolean).join(' ')}>
+        <h3>{title}</h3>
+        <p className="kpi-value">{value}</p>
+        <p className="kpi-sub">{subtitle}</p>
+      </div>
+    );
+
+    const StatusPill = ({ status }) => (
+      <span className={['status-pill', status.cls].join(' ')}>{status.label}</span>
+    );
+
+    const Row = ({ row, showMeta, onDelete }) => {
+      const status = deriveStatus(row.order_type);
+      return (
+        <div className={['row', showMeta ? 'meta' : ''].join(' ').trim()}>
+          <div className="client">
+            <span className="client-name">{row.client}</span>
+            <span className="client-city">📍 {row.city}</span>
+          </div>
+          <div className="order-items">
+            <div>{row.order_items}</div>
+            <div className="order-meta">Тип: {row.order_type}</div>
+          </div>
+          <div>
+            <div className="amount">{formatMoney(row.order_amount)}</div>
+            <div className="order-meta">{new Date(row.order_date).toLocaleDateString('ru-RU')}</div>
+          </div>
+          <div><StatusPill status={status} /></div>
+          <div className="source">{row.lead_source}</div>
+          {showMeta && (
+            <>
+              <div className="order-meta">{row.added_by || '—'}</div>
+              <div className="order-meta">{row.added_at ? new Date(row.added_at).toLocaleString('ru-RU') : '—'}</div>
+              <div>
+                <button className="btn-ghost" onClick={() => onDelete?.(row.id)}>Удалить</button>
+              </div>
+            </>
+          )}
+        </div>
+      );
+    };
+
+    const Table = ({ rows, showMeta, onDelete }) => (
+      <div className="panel table-card">
+        <div className="table-header">
+          <div>
+            <p className="table-title">Последние заявки</p>
+            <p className="table-sub">Новые обращения по солнечным панелям</p>
+          </div>
+          <div className="chip">Всего записей: {rows.length}</div>
+        </div>
+        <div className={['table-head', showMeta ? 'meta' : ''].join(' ').trim()}>
+          <span>Клиент</span>
+          <span>Состав заказа</span>
+          <span>Сумма</span>
+          <span>Статус</span>
+          <span>Источник</span>
+          {showMeta && <>
+            <span>Кто добавил</span>
+            <span>Добавлено</span>
+            <span></span>
+          </>}
+        </div>
+        <div className="table-scroll">
+          {rows.map((row) => <Row key={row.id} row={row} showMeta={showMeta} onDelete={onDelete} />)}
+        </div>
+      </div>
+    );
+
+    const makeDefaultForm = () => ({
+      client: '',
+      city: '',
+      order_items: '',
+      order_type: 'из наличия',
+      order_amount: '',
+      lead_source: '',
+      order_date: new Date().toISOString().slice(0, 10),
+    });
+
+    const App = () => {
+      const [rows, setRows] = useState([]);
+      const [loading, setLoading] = useState(true);
+      const [refreshing, setRefreshing] = useState(false);
+      const [error, setError] = useState('');
+      const [showForm, setShowForm] = useState(false);
+      const [form, setForm] = useState(makeDefaultForm);
+      const [currentUser, setCurrentUser] = useState(null);
+      const [token, setToken] = useState(localStorage.getItem('token') || '');
+      const [showLogin, setShowLogin] = useState(!localStorage.getItem('token'));
+      const [users, setUsers] = useState([]);
+      const [audit, setAudit] = useState([]);
+      const [toast, setToast] = useState('');
+      const [showUsersPanel, setShowUsersPanel] = useState(false);
+      const [showAudit, setShowAudit] = useState(false);
+      const [newUser, setNewUser] = useState({ login: '', password: '', role: 'employee' });
+      const fileInputRef = useRef(null);
+
+      const isAdmin = currentUser && (currentUser.role === 'admin' || currentUser.role === 'owner');
+      const isOwner = currentUser && currentUser.role === 'owner';
+
+      const showToast = (msg) => {
+        setToast(msg);
+        setTimeout(() => setToast(''), 2800);
+      };
+
+      const apiFetch = async (path, options = {}) => {
+        const headers = options.headers ? { ...options.headers } : {};
+        if (token) headers.Authorization = `Bearer ${token}`;
+        if (options.body && !(options.body instanceof FormData)) headers['Content-Type'] = 'application/json';
+        const resp = await fetch(API + path, { ...options, headers });
+        const data = await resp.json().catch(() => ({}));
+        if (resp.status === 401) {
+          localStorage.removeItem('token');
+          setToken('');
+          setCurrentUser(null);
+          setRows([]);
+          throw new Error('unauthorized');
+        }
+        if (!resp.ok) throw new Error(data.error || 'api_error');
+        return data;
+      };
+
+      const fetchMe = async () => {
+        if (!token) return;
+        try {
+          const me = await apiFetch('/api/me');
+          setCurrentUser(me);
+        } catch (err) {
+          setCurrentUser(null);
+        }
+      };
+
+      const fetchOrders = async () => {
+        if (!token) return;
+        try {
+          const data = await apiFetch('/api/orders');
+          setRows(data);
+        } catch (err) {
+          setError(err.message);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      const fetchUsersList = async () => {
+        if (!isAdmin) return;
+        const data = await apiFetch('/api/users');
+        setUsers(data);
+      };
+
+      const fetchAudit = async () => {
+        if (!isAdmin) return;
+        const data = await apiFetch('/api/audit');
+        setAudit(data);
+      };
+
+      useEffect(() => {
+        fetchMe().then(() => fetchOrders());
+      }, [token]);
+
+      const reload = async () => {
+        setRefreshing(true);
+        await fetchOrders();
+        setRefreshing(false);
+      };
+
+      const handleLogin = async (login, password) => {
+        const safeLogin = sanitize(login).toLowerCase();
+        if (!validLogin(safeLogin) || !validPassword(password)) {
+          return showToast('Логин/пароль не в допустимом формате');
+        }
+        try {
+          const data = await apiFetch('/api/login', {
+            method: 'POST',
+            body: JSON.stringify({ login: safeLogin, password }),
+          });
+          localStorage.setItem('token', data.token);
+          setToken(data.token);
+          setCurrentUser(data.user);
+          setShowLogin(false);
+          showToast(`Вход выполнен: ${data.user.login}`);
+          setLoading(true);
+          fetchOrders();
+          if (data.user.role === 'owner' || data.user.role === 'admin') {
+            fetchUsersList();
+            fetchAudit();
+          }
+        } catch (err) {
+          showToast('Неверный логин или пароль');
+        }
+      };
+
+      const handleLogout = () => {
+        localStorage.removeItem('token');
+        setToken('');
+        setCurrentUser(null);
+        setRows([]);
+        setUsers([]);
+        setAudit([]);
+        setShowLogin(true);
+        showToast('Вы вышли из системы');
+      };
+
+      const handleUploadClick = () => {
+        if (!currentUser) return setShowLogin(true);
+        fileInputRef.current?.click();
+      };
+
+      const handleFileSelected = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const fd = new FormData();
+        fd.append('file', file);
+        try {
+          const resp = await apiFetch('/api/upload', { method: 'POST', body: fd });
+          showToast(`Импортировано: ${resp.imported}`);
+          reload();
+        } catch (err) {
+          showToast(err.message || 'Ошибка загрузки файла');
+        } finally {
+          e.target.value = '';
+        }
+      };
+
+      const handleAddUser = async (e) => {
+        e.preventDefault();
+        if (!isAdmin) return;
+        const login = sanitize(newUser.login);
+        const password = newUser.password;
+        if (!validLogin(login)) return showToast('Логин: 3-32 символа, латиница/цифры/._-');
+        if (!validPassword(password)) return showToast('Пароль: 6-64, без кавычек/;');
+        try {
+          const created = await apiFetch('/api/users', {
+            method: 'POST',
+            body: JSON.stringify({ login, password, role: newUser.role }),
+          });
+          setUsers((prev) => [...prev, created]);
+          setNewUser({ login: '', password: '', role: 'employee' });
+          showToast('Пользователь добавлен');
+        } catch (err) {
+          showToast(err.message || 'Ошибка добавления');
+        }
+      };
+
+      const handleDeleteUser = async (login) => {
+        if (!isAdmin) return;
+        if (login === 'root') return showToast('Нельзя удалить root');
+        if (!confirm(`Удалить пользователя ${login}?`)) return;
+        await apiFetch(`/api/users/${encodeURIComponent(login)}`, { method: 'DELETE' });
+        setUsers((prev) => prev.filter((u) => u.login !== login));
+        showToast('Пользователь удален');
+      };
+
+      const onCreate = async (e) => {
+        e.preventDefault();
+        if (!currentUser) return setShowLogin(true);
+        const errors = [];
+        if (!form.client.trim()) errors.push('Клиент обязателен');
+        if (!form.city.trim()) errors.push('Город обязателен');
+        if (!form.order_date) errors.push('Дата заказа обязательна');
+        if (!form.order_amount || Number(form.order_amount) <= 0) errors.push('Сумма должна быть > 0');
+        if (Number.isNaN(Number(form.order_amount))) errors.push('Сумма должна быть числом');
+        if (errors.length) return alert('Исправьте ошибки:\n' + errors.join('\n'));
+        try {
+          const created = await apiFetch('/api/orders', {
+            method: 'POST',
+            body: JSON.stringify({
+              ...form,
+              client: sanitize(form.client),
+              city: sanitize(form.city),
+              order_items: sanitize(form.order_items),
+              order_type: sanitize(form.order_type),
+              lead_source: sanitize(form.lead_source),
+            }),
+          });
+          setRows((prev) => [created, ...prev]);
+          setShowForm(false);
+          setForm(makeDefaultForm());
+          showToast('Заявка добавлена');
+        } catch (err) {
+          showToast(err.message || 'Ошибка сохранения');
+        }
+      };
+
+      const handleDeleteOrder = async (id) => {
+        if (!isOwner) return;
+        if (!confirm(`Удалить запись #${id}?`)) return;
+        await apiFetch(`/api/orders/${id}`, { method: 'DELETE' });
+        setRows((prev) => prev.filter((r) => r.id !== id));
+        showToast('Запись удалена');
+      };
+
+      useEffect(() => {
+        if (isAdmin) {
+          fetchUsersList();
+          fetchAudit();
+        }
+      }, [isAdmin]);
+
+      const kpis = useMemo(() => deriveKPIs(rows), [rows]);
+      const today = useMemo(() => formatDate(new Date()), []);
+
+      if (error) {
+        return (
+          <div className="page">
+            <div className="panel" style={{ padding: '18px' }}>
+              <p>Ошибка загрузки данных: {error}</p>
+              <p className="muted">Проверьте доступность API сервера и повторите попытку.</p>
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="page">
+          <div className="panel header">
+            <div className="brand">
+              <div className="brand-icon">☀️</div>
+              <div className="brand-text">
+                <span className="brand-title">СолнцеCRM</span>
+                <span className="brand-sub">Солнечные панели</span>
+              </div>
+            </div>
+            <div className="header-right">
+              <span className="date-chip">📅 {today}</span>
+              {currentUser ? (
+                <div className="top-right">
+                  <span className="user-chip">👤 {currentUser.login} · {currentUser.role}</span>
+                  <button className="btn btn-primary" onClick={() => setShowForm(true)}>Новая заявка</button>
+                  <button className="icon-btn" title="Уведомления скоро">🔔</button>
+                  <button className="icon-btn" onClick={reload} disabled={refreshing}>{refreshing ? '…' : '⇄'}</button>
+                  <button className="icon-btn" onClick={handleLogout}>⇦</button>
+                </div>
+              ) : (
+                <button className="btn btn-primary" onClick={() => setShowLogin(true)}>Войти в личный кабинет</button>
+              )}
+            </div>
+          </div>
+
+          <div className="cards">
+            <StatCard
+              title="Всего заявок"
+              value={loading ? '—' : kpis.total}
+              subtitle="всего в базе"
+              tone="orange"
+            />
+            <StatCard
+              title="Конверсия"
+              value={loading ? '—' : `${kpis.conversion}%`}
+              subtitle="заявок в сделки (из наличия)"
+              tone="green"
+            />
+            <StatCard
+              title="Выручка"
+              value={loading ? '—' : formatMoney(kpis.revenue)}
+              subtitle="сумма всех заказов"
+              tone="white"
+            />
+            <StatCard
+              title="Новые заявки"
+              value={loading ? '—' : kpis.newCount}
+              subtitle="за последние 7 дней"
+              tone="beige"
+            />
+          </div>
+
+          {currentUser && (
+            <div className="panel" style={{ padding: '12px 16px' }}>
+              <div className="menu">
+                <button className="btn" onClick={handleUploadClick}>Загрузить новый файл</button>
+                <button className="btn" onClick={() => setShowForm(true)}>Новая заявка</button>
+                {isAdmin && (
+                  <>
+                    <button className="btn" onClick={() => setShowUsersPanel((v) => !v)}>Просмотреть пользователей</button>
+                    <button className="btn" onClick={() => setShowUsersPanel((v) => !v)}>Добавить нового пользователя</button>
+                    <button className="btn" onClick={() => setShowUsersPanel((v) => !v)}>Удалить пользователя</button>
+                    <button className="btn" onClick={() => setShowAudit((v) => !v)}>Журнал действий</button>
+                  </>
+                )}
+              </div>
+              <input type="file" accept=".xlsx,.sqlite" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileSelected} />
+            </div>
+          )}
+
+          {loading ? (
+            <div className="panel" style={{ padding: '16px 18px' }}>
+              <div className="skeleton" style={{ height: 18, width: 180, marginBottom: 12 }}></div>
+              <div className="skeleton" style={{ height: 14, width: 240, marginBottom: 18 }}></div>
+              <div className="skeleton" style={{ height: 320 }}></div>
+            </div>
+          ) : (
+            <Table rows={rows} showMeta={isOwner} onDelete={isOwner ? handleDeleteOrder : undefined} />
+          )}
+
+          {showUsersPanel && isAdmin && (
+            <div className="panel" style={{ padding: '16px 18px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+                <div>
+                  <p className="table-title" style={{ margin: 0 }}>Пользователи</p>
+                  <p className="table-sub" style={{ margin: 0 }}>Управление доступом (данные с сервера)</p>
+                </div>
+                <span className="pill">Всего: {users.length}</span>
+              </div>
+              <div style={{ marginTop: 12, display: 'grid', gap: 8 }}>
+                {users.map((u) => (
+                  <div key={u.login} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', border: '1px solid #e5e7eb', borderRadius: 12 }}>
+                    <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                      <span className="client-name">{u.login}</span>
+                      <span className="chip">{u.role}</span>
+                    </div>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                      <span className="muted">******</span>
+                      <button className="btn-ghost" onClick={() => handleDeleteUser(u.login)} disabled={u.login === 'root'}>Удалить</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <form className="form-grid" style={{ marginTop: 14 }} onSubmit={handleAddUser}>
+                <input
+                  className="input"
+                  placeholder="Новый логин"
+                  value={newUser.login}
+                  onChange={(e) => setNewUser({ ...newUser, login: e.target.value })}
+                  required
+                />
+                <input
+                  className="input"
+                  placeholder="Пароль"
+                  type="password"
+                  value={newUser.password}
+                  onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                  required
+                />
+                <select
+                  className="input"
+                  value={newUser.role}
+                  onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+                >
+                  <option value="employee">сотрудник</option>
+                  <option value="manager">руководитель</option>
+                  <option value="admin">администратор</option>
+                </select>
+                <div className="modal-actions">
+                  <button type="submit" className="btn btn-primary">Сохранить</button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          {showAudit && isAdmin && (
+            <div className="panel" style={{ padding: '16px 18px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <p className="table-title" style={{ margin: 0 }}>Журнал действий</p>
+                  <p className="table-sub" style={{ margin: 0 }}>Последние события</p>
+                </div>
+                <span className="pill">записей: {audit.length}</span>
+              </div>
+              <div style={{ maxHeight: 280, overflowY: 'auto', marginTop: 10, borderTop: '1px solid #e5e7eb' }}>
+                {audit.map((item, idx) => (
+                  <div key={idx} style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 2fr', padding: '10px 6px', borderBottom: '1px solid #f1f2f6', fontSize: 13 }}>
+                    <span>{new Date(item.ts).toLocaleString('ru-RU')}</span>
+                    <span>{item.user} · {item.role}</span>
+                    <span>{item.action} {item.detail}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {showForm && (
+            <div className="modal-backdrop" onClick={() => setShowForm(false)}>
+              <div className="modal" onClick={(e) => e.stopPropagation()}>
+                <h3>Новая заявка</h3>
+                <form className="form-grid" onSubmit={onCreate}>
+                  <input
+                    className="input full"
+                    placeholder="Клиент *"
+                    value={form.client}
+                    onChange={(e) => setForm({ ...form, client: e.target.value })}
+                    required
+                  />
+                  <input
+                    className="input"
+                    placeholder="Город *"
+                    value={form.city}
+                    onChange={(e) => setForm({ ...form, city: e.target.value })}
+                    required
+                  />
+                  <input
+                    type="date"
+                    className="input"
+                    value={form.order_date}
+                    onChange={(e) => setForm({ ...form, order_date: e.target.value })}
+                  />
+                  <textarea
+                    className="input full"
+                    rows="3"
+                    placeholder="Состав заказа"
+                    value={form.order_items}
+                    onChange={(e) => setForm({ ...form, order_items: e.target.value })}
+                  ></textarea>
+                  <select
+                    className="input"
+                    value={form.order_type}
+                    onChange={(e) => setForm({ ...form, order_type: e.target.value })}
+                  >
+                    <option>из наличия</option>
+                    <option>под заказ</option>
+                    <option>индивидуальное производство</option>
+                  </select>
+                  <input
+                    type="number"
+                    className="input"
+                    placeholder="Сумма ₽ *"
+                    value={form.order_amount}
+                    onChange={(e) => setForm({ ...form, order_amount: e.target.value })}
+                    required
+                  />
+                  <input
+                    className="input"
+                    placeholder="Источник"
+                    value={form.lead_source}
+                    onChange={(e) => setForm({ ...form, lead_source: e.target.value })}
+                  />
+                  <div className="modal-actions full">
+                    <button type="button" className="btn-ghost" onClick={() => setShowForm(false)}>Отмена</button>
+                    <button type="submit" className="btn btn-primary">Сохранить</button>
+                  </div>
+                </form>
+                <p className="muted" style={{ margin: 0, fontSize: '12px' }}>Данные сохраняются на сервер через API.</p>
+              </div>
+            </div>
+          )}
+
+          {showLogin && (
+            <div className="modal-backdrop" onClick={() => setShowLogin(false)}>
+              <div className="modal" onClick={(e) => e.stopPropagation()}>
+                <h3>Войти в личный кабинет</h3>
+                <form className="form-grid" onSubmit={(e) => { e.preventDefault(); handleLogin(e.target.login.value, e.target.password.value); }}>
+                  <input name="login" className="input full" placeholder="Логин" pattern="[A-Za-z0-9_.-]{3,32}" title="Латиница, цифры, . _ -, 3-32 символа" required />
+                  <input name="password" className="input full" type="password" minLength="6" maxLength="64" placeholder="Пароль" required />
+                  <div className="modal-actions full">
+                    <button type="button" className="btn-ghost" onClick={() => setShowLogin(false)}>Отмена</button>
+                    <button type="submit" className="btn btn-primary">Войти</button>
+                  </div>
+                </form>
+                <p className="muted" style={{ margin: 0, fontSize: '12px' }}>Демо-учётки: root/sunroot123 (главный), admin/sunadmin123, manager/sunmanager123, user/sunuser123</p>
+              </div>
+            </div>
+          )}
+
+          {!currentUser && (
+            <div className="overlay-locked">
+              <div>
+                <p className="table-title" style={{ margin: 0 }}>Нужна авторизация</p>
+                <p className="table-sub">Войдите, чтобы просматривать отчёт и загружать данные</p>
+                <button className="btn btn-primary" onClick={() => setShowLogin(true)}>Войти в личный кабинет</button>
+              </div>
+            </div>
+          )}
+
+          {toast && <div className="toast">{toast}</div>}
+        </div>
+      );
+    };
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
