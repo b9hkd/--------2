@@ -1,5 +1,4 @@
 const express = require('express');
-const sqlite3 = require('sqlite3').verbose();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const cors = require('cors');
@@ -7,6 +6,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const XLSX = require('xlsx');
+const initSqlJs = require('sql.js');
 
 const app = express();
 const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'crm_orders.sqlite');
@@ -21,27 +21,56 @@ app.use(cors());
 app.use(express.json({ limit: '2mb' }));
 app.use(express.static(__dirname));
 
-const db = new sqlite3.Database(DB_PATH);
+let SQL;
+let db;
 
-const run = (sql, params = []) =>
-  new Promise((resolve, reject) => {
-    db.run(sql, params, function (err) {
-      if (err) reject(err);
-      else resolve(this);
+async function loadDb() {
+  if (!SQL) {
+    SQL = await initSqlJs({
+      locateFile: (file) => require.resolve('sql.js/dist/' + file),
     });
-  });
+  }
+  if (!db) {
+    const buf = fs.existsSync(DB_PATH) ? fs.readFileSync(DB_PATH) : null;
+    db = buf ? new SQL.Database(new Uint8Array(buf)) : new SQL.Database();
+  }
+}
 
-const get = (sql, params = []) =>
-  new Promise((resolve, reject) => {
-    db.get(sql, params, (err, row) => (err ? reject(err) : resolve(row)));
-  });
+function saveDb() {
+  if (!db) return;
+  const data = db.export();
+  fs.writeFileSync(DB_PATH, Buffer.from(data));
+}
 
-const all = (sql, params = []) =>
-  new Promise((resolve, reject) => {
-    db.all(sql, params, (err, rows) => (err ? reject(err) : resolve(rows)));
-  });
+async function run(sql, params = [], persist = true) {
+  await loadDb();
+  const stmt = db.prepare(sql);
+  stmt.run(params);
+  stmt.free();
+  if (persist) saveDb();
+}
+
+async function get(sql, params = []) {
+  await loadDb();
+  const stmt = db.prepare(sql);
+  stmt.bind(params);
+  const row = stmt.step() ? stmt.getAsObject() : null;
+  stmt.free();
+  return row;
+}
+
+async function all(sql, params = []) {
+  await loadDb();
+  const stmt = db.prepare(sql);
+  stmt.bind(params);
+  const rows = [];
+  while (stmt.step()) rows.push(stmt.getAsObject());
+  stmt.free();
+  return rows;
+}
 
 async function initDb() {
+  await loadDb();
   await run(
     `CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -155,46 +184,43 @@ async function importExcel(filePath, addedBy) {
     };
   });
 
-  await run('BEGIN');
-  try {
-    for (const row of parsed) {
-      await run(
-        `INSERT INTO orders (id, order_date, client, customer_type, city, order_items,
-                             order_type, manager, lead_source, order_amount, added_by, added_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-         ON CONFLICT(id) DO UPDATE SET
-           order_date=excluded.order_date,
-           client=excluded.client,
-           customer_type=excluded.customer_type,
-           city=excluded.city,
-           order_items=excluded.order_items,
-           order_type=excluded.order_type,
-           manager=excluded.manager,
-           lead_source=excluded.lead_source,
-           order_amount=excluded.order_amount,
-           added_by=excluded.added_by,
-           added_at=excluded.added_at`,
-        [
-          row.id,
-          row.order_date,
-          row.client,
-          row.customer_type,
-          row.city,
-          row.order_items,
-          row.order_type,
-          row.manager,
-          row.lead_source,
-          row.order_amount,
-          row.added_by,
-          row.added_at,
-        ]
-      );
-    }
-    await run('COMMIT');
-  } catch (err) {
-    await run('ROLLBACK').catch(() => {});
-    throw err;
+  // sql.js no transactions; emulate by saving once after loop
+  await loadDb();
+  for (const row of parsed) {
+    const stmt = db.prepare(
+      `INSERT INTO orders (id, order_date, client, customer_type, city, order_items,
+                           order_type, manager, lead_source, order_amount, added_by, added_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+       ON CONFLICT(id) DO UPDATE SET
+         order_date=excluded.order_date,
+         client=excluded.client,
+         customer_type=excluded.customer_type,
+         city=excluded.city,
+         order_items=excluded.order_items,
+         order_type=excluded.order_type,
+         manager=excluded.manager,
+         lead_source=excluded.lead_source,
+         order_amount=excluded.order_amount,
+         added_by=excluded.added_by,
+         added_at=excluded.added_at`
+    );
+    stmt.run([
+      row.id,
+      row.order_date,
+      row.client,
+      row.customer_type,
+      row.city,
+      row.order_items,
+      row.order_type,
+      row.manager,
+      row.lead_source,
+      row.order_amount,
+      row.added_by,
+      row.added_at,
+    ]);
+    stmt.free();
   }
+  saveDb();
   return parsed.length;
 }
 
