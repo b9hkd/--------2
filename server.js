@@ -20,6 +20,7 @@ const upload = multer({ dest: uploadDir });
 app.use(cors());
 app.use(express.json({ limit: '2mb' }));
 app.use(express.static(__dirname));
+app.get('/', (_req, res) => res.redirect('/dashboard.html'));
 
 let SQL;
 let db;
